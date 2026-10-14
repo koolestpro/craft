@@ -25,10 +25,15 @@ FilmCraft and video-gen are layers, not rivals:
 
 ## Source
 
-- On this machine: `/Users/mac/craft/filmcraft`
+- Suite repo (umbrella): `/Users/mac/craft`, remote `koolestpro/craft`. Every app is a
+  submodule; build all CLIs into the shared `bin/` with `./build.sh`.
+- FilmCraft app: `/Users/mac/craft/filmcraft`
 - Origin: `git@github.com:koolestpro/filmcraft.git` (our fork).
   Upstream: `storytold/filmcraft`. Version 0.6.0, edition 2024, `rust-version 1.95`,
   dual licence MIT OR Apache-2.0.
+- Connection: projects never vendor FilmCraft. They call `filmcraft-cli` (resolved via
+  `$FILMCRAFT_CLI`, then `$HOME/craft/bin`, then `PATH`), or an MCP server registered at
+  user scope. See the umbrella `README.md`.
 - Sibling apps in the same suite (not used for video): PhotoCraft (Photoshop),
   VectorCraft (Illustrator), LightCraft (Lightroom), EffectCraft (After Effects),
   DesignCraft (InDesign), PdfCraft (Acrobat), plus CADCraft, WordCraft, DeckCraft,
@@ -63,7 +68,13 @@ sessions (10 GB), Photos analysis (6.6 GB), CapCut projects (8 GB) and Chrome pr
 
 ## Build
 
-Minimal headless editor (no speech):
+Easiest, from the umbrella (builds every app CLI into `~/craft/bin`):
+```sh
+cd /Users/mac/craft
+./build.sh filmcraft
+```
+
+Or build the app on its own. Minimal headless editor (no speech):
 ```sh
 cd /Users/mac/craft/filmcraft
 cargo build --release -p filmcraft-cli
