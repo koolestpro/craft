@@ -1,0 +1,57 @@
+name: Upstream check
+
+# Tells us when the original ArtCraft sources (storytold/*) have moved past the
+# commits our submodules pin, so we never drift far from upstream.
+on:
+  schedule:
+    - cron: "0 7 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compare pinned submodule commits to upstream HEAD
+        id: compare
+        run: |
+          APPS="cadcraft craft-launcher designcraft effectcraft filmcraft lightcraft pdfcraft photocraft vectorcraft wordcraft"
+          stale=""
+          for app in $APPS; do
+            pinned=$(git ls-tree HEAD "$app" | awk '{print $3}')
+            upstream=$(git ls-remote "https://github.com/storytold/$app.git" refs/heads/main | awk '{print $1}')
+            if [ -n "$upstream" ] && [ "$pinned" != "$upstream" ]; then
+              stale="${stale}- $app: pinned ${pinned:0:9}, upstream ${upstream:0:9}"$'\n'
+            fi
+          done
+          if [ -n "$stale" ]; then
+            {
+              echo "stale<<EOF"
+              printf '%s' "$stale"
+              echo "EOF"
+            } >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Open or update an issue when upstream has moved
+        if: steps.compare.outputs.stale != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = `Upstream ArtCraft sources have moved past our pinned submodules:\n\n${process.env.STALE}\n\nRun \`./update.sh --apply\` locally, verify, and push.`;
+            const title = 'Upstream Craft has new commits';
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner, repo: context.repo.repo, state: 'open', labels: 'upstream'
+            });
+            const found = existing.data.find(i => i.title === title);
+            if (found) {
+              await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: found.number, body });
+            } else {
+              await github.rest.issues.create({ owner: context.repo.owner, repo: context.repo.repo, title, body, labels: ['upstream'] });
+            }
+        env:
+          STALE: ${{ steps.compare.outputs.stale }}

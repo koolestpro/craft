@@ -14,6 +14,10 @@ shared `bin/`. Read this before changing anything here.
 
 - **Start:** `git submodule update --init --recursive` (or `git pull --rebase` plus
   the same) so every app is present at its pinned commit.
+- **Check upstream:** run `./update.sh` to see what the original ArtCraft team
+  (`storytold/*`) has added. When the user wants the suite current, `./update.sh --apply`
+  fast-forwards our forks, pushes them and re-pins the submodules. Upstream is the source
+  of truth; take their work unless it breaks us.
 - **Build:** `./build.sh` builds every CLI into `bin/`. Building one app: `cd <app>`
   then `cargo build --release -p <app>-cli`.
 - **Do not commit binaries or `target/`.** `bin/` is gitignored on purpose.

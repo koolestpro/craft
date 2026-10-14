@@ -84,6 +84,23 @@ There are two connection methods, mirroring `video-gen`:
    Headless mode needs no window; the bridge needs the desktop app started with
    `filmcraft --control 9876`.
 
+## Staying up to date with the original builder
+
+Upstream is the ArtCraft team's `storytold/*` repos (each app has an `upstream` remote).
+Our forks carry no local patches, so updates are fast-forwards.
+
+```sh
+./update.sh            # report: what is new upstream per app (safe, read-only)
+./update.sh --check    # same, exit 1 if anything is behind (used by CI)
+./update.sh --apply    # fast-forward our forks, push them, re-pin the submodules, commit
+```
+
+- `.github/workflows/upstream-check.yml` runs daily, compares our pinned submodule
+  commits to upstream `main`, and opens or comments on an issue when upstream moves.
+- Agents: run `./update.sh` at the start of any session that touches Craft, and
+  `./update.sh --apply` when the user wants the suite current. If an app ever has local
+  commits ahead of upstream (a real fork), `--apply` refuses for that app and says so.
+
 ## Rules
 
 - Submodules are pinned; to update an app, commit inside it, then commit the new pin here.
