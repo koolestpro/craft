@@ -31,8 +31,21 @@ filmcraft --control 9876 &
 claude mcp add -s user filmcraft -- "$HOME/craft/bin/filmcraft-cli" mcp --bridge 127.0.0.1:9876
 ```
 
-Repeat per app (`photocraft-cli mcp`, `designcraft-cli mcp`, ...). Because it is user
-scope, it is available in every Cowork/Claude/opencode project with no per-project config.
+Registered on this machine (2026-10-14) in Claude (user scope), Codex
+(`~/.codex/config.toml`) and opencode (`~/.config/opencode/opencode.jsonc`): `filmcraft`,
+`cadcraft`, `designcraft`, `effectcraft`, `lightcraft`, `pdfcraft`, `photocraft`,
+`vectorcraft`, `wordcraft`. Because it is user scope, they are available in every
+Cowork/Claude/Codex/opencode project with no per-project config.
+
+To register on a new machine, loop the apps:
+
+```sh
+for app in filmcraft cadcraft designcraft effectcraft lightcraft pdfcraft photocraft vectorcraft wordcraft; do
+  claude mcp add -s user "$app" -- "$HOME/craft/bin/$app-cli" mcp
+done
+```
+
+(Add `--demo` to the filmcraft args if you want it to open the demo project.)
 
 ## 3. On a new machine
 
