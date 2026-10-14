@@ -43,7 +43,7 @@ FilmCraft and video-gen are layers, not rivals:
 
 | Need | Status | Action |
 |---|---|---|
-| Rust toolchain >= 1.95 (edition 2024) | **Missing** (`rustc`/`cargo`/`rustup` not installed) | install rustup, then `rustup default stable` |
+| Rust toolchain >= 1.95 (edition 2024) | **Installed** (rustc/cargo 1.99.0 via rustup) | none |
 | Xcode Command Line Tools (clang 17) | Present (`/Library/Developer/CommandLineTools`, SDK 26.1) | none |
 | Network to GitHub (craft-ui git dep) | Reachable (`git ls-remote storytold/craft-libs` OK) | none; first build fetches `craft-ui` and crates.io |
 | Disk free space | **66 GiB free (67% full)** after the 2026-10-14 cleanup | none now; was 6.1 GiB |
@@ -80,30 +80,32 @@ cd /Users/mac/craft/filmcraft
 cargo build --release -p filmcraft-cli
 ```
 
-Headless editor with Whisper speech-to-text:
+Headless editor with speech (what `./build.sh filmcraft` builds):
 ```sh
-cargo build --release -p filmcraft-cli --features whisper
+cargo build --release -p filmcraft-cli --features whisper,neural-voices
 ```
 
-Desktop app with both speech features (needed for the built-in TTS):
+Desktop app with both speech features (GUI, agent-drivable over the control channel):
 ```sh
-cargo build --release -p filmcraft
-# features: whisper, neural-voices
 cargo build --release -p filmcraft --features whisper,neural-voices
 ```
 
-Speech features are **off by default** and never built for the web:
+Speech features are **off by default** upstream and never built for the web:
 - `whisper`: Whisper speech-to-text on candle (CPU), model downloads.
   Models `whisper-tiny` / `whisper-base` (default) / `whisper-small`, multilingual,
   downloaded on request into `<data dir>/models/<id>/`.
 - `neural-voices`: Kokoro-82M neural TTS on candle (CPU) plus its download.
 
-Note: `apps/filmcraft-cli/Cargo.toml` only forwards `whisper`, not `neural-voices`,
-so **headless TTS over the CLI/MCP is not compiled today**. Two ways to get TTS:
-1. Run the desktop app (`filmcraft --control 9876`) and drive it over the MCP bridge.
-2. Add one line to our fork: in `apps/filmcraft-cli/Cargo.toml`,
-   `neural-voices = ["filmcraft-engine/neural-voices"]`, then build the CLI with it.
-   This is the preferred path for the automated pipeline (option 2).
+Status (2026-10-14):
+- `~/craft/bin/filmcraft-cli` **0.8.0** is built with `whisper,neural-voices` (701
+  commands); headless STT and TTS both work. `~/craft/bin/filmcraft` is the desktop app,
+  also built with both features.
+- Our fork carries a **one-line patch**: `apps/filmcraft-cli/Cargo.toml` forwards
+  `neural-voices` (upstream's CLI forwards only `whisper`). This makes our `filmcraft`
+  fork 1 commit ahead of upstream, so `~/craft/update.sh --apply` will skip filmcraft
+  until the patch is rebased onto upstream. Candidate to send upstream as a PR.
+- The desktop app is **not** manual-only: it is driven by agents over `--control <port>`
+  and the MCP bridge exactly like the CLI. The CLI just avoids needing a window.
 
 ## Drive it (MCP and CLI)
 
@@ -176,10 +178,10 @@ and Yoruba, no, not today.** For the khutba work (Yoruba and English):
 ## Verify
 
 ```sh
-cd /Users/mac/craft/filmcraft
-./target/release/filmcraft-cli --version
-./target/release/filmcraft-cli commands | wc -l        # expect 650+
-./target/release/filmcraft-cli --demo inspect sequence
+filmcraft-cli --version                                   # filmcraft-cli 0.8.0
+filmcraft-cli commands | wc -l                            # 701
+filmcraft-cli --demo exec tts.voices | grep -A2 package   # available: true
+filmcraft-cli --demo inspect sequence
 ```
 Drive the 2026-10-09 khutba source through one real import, one grade, one caption
 track and one export, then review the frame with `render_frame`.
@@ -187,9 +189,11 @@ track and one export, then review the frame with `render_frame`.
 ## Next
 
 1. ~~Free ~30 GB of disk.~~ Done 2026-10-14 (66 GiB free).
-2. Install rustup + Rust >= 1.95.
-3. Build `filmcraft-cli` (with `whisper`) and register the MCP server.
-4. Add the `neural-voices` passthrough to our fork's CLI so headless TTS works.
-5. Pilot: replace the ffmpeg assembly in `khutba/pipeline/khutba.py` for one clip,
+2. ~~Install rustup + Rust >= 1.95.~~ Done (1.99.0).
+3. ~~Build `filmcraft-cli` and register the MCP server.~~ Done (0.8.0, user-scope MCP).
+4. ~~Add the `neural-voices` passthrough to our fork's CLI.~~ Done (f6fa9263).
+5. Build the rest of the suite (`~/craft/build.sh`) as needed.
+6. Download the Kokoro voices once (`tts.downloadVoices`, 336 MB) before first TTS use.
+7. Pilot: replace the ffmpeg assembly in `khutba/pipeline/khutba.py` for one clip,
    compare against the approved 2026-10-09 clip.
-6. Freeze roles and update `docs/ROADMAP_VIDEO_PIPELINE.md` Phase 3/4/7.
+8. Freeze roles and update `docs/ROADMAP_VIDEO_PIPELINE.md` Phase 3/4/7.
