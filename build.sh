@@ -13,7 +13,9 @@ mkdir -p bin
 all_apps=(cadcraft designcraft effectcraft filmcraft lightcraft pdfcraft photocraft vectorcraft wordcraft)
 
 # Default extra features per app (space separated, empty means none).
-default_features_filmcraft="whisper"
+# FilmCraft: whisper (speech-to-text) + neural-voices (Kokoro TTS) so the CLI can
+# transcribe and narrate headless, matching the desktop app.
+default_features_filmcraft="whisper neural-voices"
 default_features_photocraft="heif"
 default_features_pdfcraft="mcp"
 default_features_lightcraft="denoise"
