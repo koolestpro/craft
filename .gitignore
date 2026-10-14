@@ -1,0 +1,9 @@
+# Built CLI binaries live in the shared bin dir on PATH; never commit them.
+/bin/
+
+# Safety net: each app repo ignores its own target/, this covers the umbrella.
+target/
+**/target/
+
+.DS_Store
+*.log

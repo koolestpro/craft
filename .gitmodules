@@ -1,0 +1,30 @@
+[submodule "cadcraft"]
+	path = cadcraft
+	url = git@github.com:koolestpro/cadcraft.git
+[submodule "craft-launcher"]
+	path = craft-launcher
+	url = git@github.com:koolestpro/craft-launcher.git
+[submodule "designcraft"]
+	path = designcraft
+	url = git@github.com:koolestpro/designcraft.git
+[submodule "effectcraft"]
+	path = effectcraft
+	url = git@github.com:koolestpro/effectcraft.git
+[submodule "filmcraft"]
+	path = filmcraft
+	url = git@github.com:koolestpro/filmcraft.git
+[submodule "lightcraft"]
+	path = lightcraft
+	url = git@github.com:koolestpro/lightcraft.git
+[submodule "pdfcraft"]
+	path = pdfcraft
+	url = git@github.com:koolestpro/pdfcraft.git
+[submodule "photocraft"]
+	path = photocraft
+	url = git@github.com:koolestpro/photocraft.git
+[submodule "vectorcraft"]
+	path = vectorcraft
+	url = git@github.com:koolestpro/vectorcraft.git
+[submodule "wordcraft"]
+	path = wordcraft
+	url = git@github.com:koolestpro/wordcraft.git
